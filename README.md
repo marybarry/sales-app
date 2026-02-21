@@ -166,9 +166,18 @@ Tradeoffs:
 
 ## Testing
 
-Frontend has component tests (App.test.tsx) using Vitest + React Testing Library.
+The tests for this task focus on component-level behaviour, closer to integration testing than pure unit testing. It ensures the key user flows work as expected - rendering, interactions, API calls.
 
-Backend has unit tests for deals logic (deals.test.ts) and a mocked DB layer for isolation.
+Frontend uses Vitest + React Testing Library - see App.test.tsx.
+
+Backend has unit tests for deals logic with a mocked DB layer for isolation - see deals.test.ts.
+
+In a production setup, I'd expand the testing strategy to include:
+
+- Unit tests for small, isolated pieces of logic, e.g. validation, helper functions
+- Integration tests for components interacting with the API layer
+- End-to-end tests, e.g. Playwright or Cypress, to cover full user journeys
+- Backend tests for Lambda handlers, DB queries, error cases
 
 ## Use of AI
 
