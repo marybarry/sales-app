@@ -1,20 +1,47 @@
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
+import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { DealCard as DealCardType } from "../types";
 
-/**
- * todo:
- * - theming
- * - use mui material
- * - colours of tags
- * - completed deal styling
- * - readmes
- *
- */
 interface DealCardProps {
   card: DealCardType;
   onEdit: (card: DealCardType) => void;
-  onDelete: (card: DealCardType) => void; // or just pass id?
+  onDelete: (card: DealCardType) => void;
   onToggleComplete: (card: DealCardType) => void;
 }
+
+const priorityColour: Record<string, "error" | "warning" | "success"> = {
+  High: "error",
+  Medium: "warning",
+  Low: "success",
+};
+
+const statusColour: Record<
+  string,
+  "default" | "primary" | "success" | "warning" | "error"
+> = {
+  "New Lead": "primary",
+  "Awaiting Pricing": "warning",
+  "Awaiting KYC": "warning",
+  Signed: "success",
+  Active: "success",
+  Complete: "default",
+};
 
 export const DealCard = ({
   card,
@@ -23,7 +50,9 @@ export const DealCard = ({
   onToggleComplete,
 }: DealCardProps) => {
   const formatDate = (dateString: string) => {
+    if (!dateString) return "—";
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "—";
     return date.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "short",
@@ -31,84 +60,111 @@ export const DealCard = ({
     });
   };
 
-  const getPriorityClass = (priority: string) => {
-    return `priority priority-${priority}`;
-  };
+  const isComplete = card.status.includes("Complete");
 
   return (
-    <div className="deal-card">
-      <div className="card-header">
-        <h3 className="name">{card.name}</h3>
+    <Card
+      variant="outlined"
+      sx={{
+        opacity: isComplete ? 0.6 : 1,
+        transition: "opacity 0.2s, box-shadow 0.2s",
+        "&:hover": { boxShadow: 3 },
+      }}
+    >
+      <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+        {/* Header row */}
+        <Stack direction="row" alignItems="flex-start" gap={1} mb={1}>
+          <Box flex={1}>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              sx={{ textDecoration: isComplete ? "line-through" : "none" }}
+            >
+              {card.name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {card.customerName}
+            </Typography>
+          </Box>
 
-        <span className={getPriorityClass(card.priority)}>{card.priority}</span>
+          <Chip
+            label={card.priority}
+            color={priorityColour[card.priority] ?? "default"}
+            size="small"
+            variant="outlined"
+          />
 
-        {/* Complete icon */}
-        <button
-          className="complete-btn"
-          onClick={() => onToggleComplete(card)}
-          title="Mark complete"
-        >
-          {card.status.includes("Complete") ? "✔️" : "⬜"}
-        </button>
+          <Tooltip title={isComplete ? "Mark incomplete" : "Mark complete"}>
+            <IconButton size="small" onClick={() => onToggleComplete(card)}>
+              {isComplete ? (
+                <CheckCircleIcon fontSize="small" color="success" />
+              ) : (
+                <CheckBoxOutlineBlankIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
 
-        {/* Edit icon */}
-        <button
-          className="edit-btn"
-          onClick={() => onEdit(card)}
-          title="Edit deal"
-        >
-          ✏️
-        </button>
-      </div>
+          <Tooltip title="Edit deal">
+            <IconButton size="small" onClick={() => onEdit(card)}>
+              <EditOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
 
-      {/* Delete icon */}
-      <button
-        className="delete-btn"
-        onClick={() => onDelete(card)}
-        title="Delete deal"
-        name="delete"
-      >
-        🗑️
-      </button>
+          <Tooltip title="Delete deal">
+            <IconButton
+              aria-label="Delete deal"
+              size="small"
+              onClick={() => onDelete(card)}
+              color="error"
+            >
+              <DeleteOutlineIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
 
-      <div className="card-body">
-        <h6 className="customer-name">{card.customerName}</h6>
+        <Divider sx={{ my: 1 }} />
 
-        <div className="card-info">
-          <span className="label">Contact:</span>
-          <span className="value">{card.email}</span>
-        </div>
+        {/* Info rows */}
+        <Stack gap={0.75}>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <EmailOutlinedIcon fontSize="inherit" color="action" />
+            <Typography variant="body2" color="text.secondary" noWrap>
+              {card.email}
+            </Typography>
+          </Stack>
 
-        <div className="card-info">
-          <span className="label">MPANs:</span>
-          <span className="value">
-            {card.mpans.length} site{card.mpans.length !== 1 ? "s" : ""}
-          </span>
-        </div>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <ElectricBoltIcon fontSize="inherit" color="action" />
+            <Typography variant="body2" color="text.secondary">
+              {card.mpans.length} site{card.mpans.length !== 1 ? "s" : ""}
+            </Typography>
+          </Stack>
 
-        <div className="card-info">
-          <span className="label">Contract start:</span>
-          <span className="value">{formatDate(card.contractStartDate)}</span>
-        </div>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <CalendarTodayOutlinedIcon fontSize="inherit" color="action" />
+            <Typography variant="body2" color="text.secondary">
+              {formatDate(card.contractStartDate)} →{" "}
+              {formatDate(card.contractEndDate)}
+            </Typography>
+          </Stack>
 
-        <div className="card-info">
-          <span className="label">Contract end:</span>
-          <span className="value">{formatDate(card.contractEndDate)}</span>
-        </div>
+          <Typography variant="caption" color="text.disabled">
+            Created {formatDate(card.createdDate)}
+          </Typography>
+        </Stack>
 
-        <div className="card-info">
-          <span className="label">Created:</span>
-          <span className="value">{formatDate(card.createdDate)}</span>
-        </div>
-
-        <div className="card-status">
-          {card.status.map((status, index) => (
-            <span key={index} className="status-badge">
-              {status}
-            </span>
+        {/* Status chips */}
+        <Stack direction="row" flexWrap="wrap" gap={0.5} mt={1.5}>
+          {card.status.map((s) => (
+            <Chip
+              key={s}
+              label={s}
+              size="small"
+              color={statusColour[s] ?? "default"}
+            />
           ))}
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };

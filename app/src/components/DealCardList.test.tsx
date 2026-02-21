@@ -166,8 +166,7 @@ describe("DealCardList", () => {
         expect(screen.getByText("Acme Corp")).toBeInTheDocument();
       });
 
-      // Click first delete button
-      const deleteButtons = screen.getAllByTitle("Delete deal");
+      const deleteButtons = screen.getAllByLabelText("Delete deal");
       await userEvent.click(deleteButtons[0]);
 
       // Modal should now be open — click the confirm Delete button
