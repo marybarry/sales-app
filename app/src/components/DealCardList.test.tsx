@@ -1,11 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { apiFetch } from "../../api";
-import { SaleCardList } from "./SaleCardList";
+import { apiFetch } from "../api";
+import { DealCardList } from "./DealCardList";
 
 // Mock apiFetch so tests never hit the network
-vi.mock("../../api", () => ({
+vi.mock("../api", () => ({
   apiFetch: vi.fn(),
 }));
 
@@ -45,11 +45,11 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-describe("SaleCardList", () => {
+describe("DealCardList", () => {
   describe("loading and rendering", () => {
     it("shows loading spinner initially", () => {
       mockApiFetch.mockReturnValue(new Promise(() => {})); // never resolves
-      render(<SaleCardList />);
+      render(<DealCardList />);
       expect(screen.getByText(/loading/i)).toBeInTheDocument();
     });
 
@@ -57,7 +57,7 @@ describe("SaleCardList", () => {
       mockApiFetch.mockResolvedValue(
         makeResponse({ success: true, deals: mockDeals })
       );
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => {
         expect(screen.getByText("Acme Corp")).toBeInTheDocument();
         expect(screen.getByText("Tech Ltd")).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("SaleCardList", () => {
       mockApiFetch.mockResolvedValue(
         makeResponse({ success: true, deals: mockDeals })
       );
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => {
         expect(screen.getByText(/2 active deals/i)).toBeInTheDocument();
       });
@@ -78,9 +78,9 @@ describe("SaleCardList", () => {
       mockApiFetch.mockResolvedValue(
         makeResponse({ success: true, deals: [] })
       );
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => {
-        expect(screen.getByText(/no sales cards found/i)).toBeInTheDocument();
+        expect(screen.getByText(/no deal cards found/i)).toBeInTheDocument();
       });
     });
   });
@@ -90,7 +90,7 @@ describe("SaleCardList", () => {
       mockApiFetch.mockResolvedValue(
         makeResponse({ success: false, error: "Unauthorized" }, false)
       );
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => {
         expect(screen.getByText(/unauthorized/i)).toBeInTheDocument();
       });
@@ -98,7 +98,7 @@ describe("SaleCardList", () => {
 
     it("shows error message on network failure", async () => {
       mockApiFetch.mockRejectedValue(new Error("Network error"));
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => {
         expect(screen.getByText(/network error/i)).toBeInTheDocument();
       });
@@ -116,7 +116,7 @@ describe("SaleCardList", () => {
         )
         .mockResolvedValueOnce(makeResponse({ success: true, deal: newDeal }));
 
-      render(<SaleCardList />);
+      render(<DealCardList />);
       await waitFor(() => screen.getByText("Acme Corp"));
 
       await userEvent.click(screen.getByText(/\+ new deal/i));
@@ -159,7 +159,7 @@ describe("SaleCardList", () => {
           makeResponse({ success: true, deletedId: "deal-1" })
         ); // DELETE
 
-      render(<SaleCardList />);
+      render(<DealCardList />);
 
       // Wait for cards to load
       await waitFor(() => {

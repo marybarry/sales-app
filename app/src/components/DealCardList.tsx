@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { apiFetch } from "../../api";
-import { SaleCard as SaleCardType } from "../../types";
-import { ConfirmDeleteModal } from "../DeleteModal";
-import { NewDealModal } from "../NewDeal";
-import { SaleCard } from "./SaleCard";
+import { apiFetch } from "../api";
+import { DealCard as DealCardType } from "../types";
+import { DealCard } from "./DealCard";
+import { ConfirmDeleteModal } from "./DeleteModal";
+import { EditDeal } from "./EditDeal";
 
-export const SaleCardList = () => {
-  const [cards, setCards] = useState<SaleCardType[]>([]);
+export const DealCardList = () => {
+  const [cards, setCards] = useState<DealCardType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCard, setEditingCard] = useState<SaleCardType | null>(null);
+  const [editingCard, setEditingCard] = useState<DealCardType | null>(null);
 
-  const [deleteTarget, setDeleteTarget] = useState<SaleCardType | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DealCardType | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // FETCH
@@ -43,7 +43,7 @@ export const SaleCardList = () => {
   }, []);
 
   // CREATE
-  const handleCreateDeal = async (newCard: Omit<SaleCardType, "id">) => {
+  const handleCreateDeal = async (newCard: Omit<DealCardType, "id">) => {
     try {
       const res = await apiFetch("/deals", {
         method: "POST",
@@ -64,7 +64,7 @@ export const SaleCardList = () => {
   };
 
   // EDIT
-  const handleEditDeal = async (updated: Omit<SaleCardType, "id">) => {
+  const handleEditDeal = async (updated: Omit<DealCardType, "id">) => {
     if (!editingCard) return;
 
     try {
@@ -90,7 +90,7 @@ export const SaleCardList = () => {
     }
   };
 
-  const openEditModal = (card: SaleCardType) => {
+  const openEditModal = (card: DealCardType) => {
     setEditingCard(card);
     setIsModalOpen(true);
   };
@@ -101,7 +101,7 @@ export const SaleCardList = () => {
   };
 
   // DELETE
-  const openDeleteModal = (card: SaleCardType) => {
+  const openDeleteModal = (card: DealCardType) => {
     setDeleteTarget(card);
     setIsDeleteModalOpen(true);
   };
@@ -130,7 +130,7 @@ export const SaleCardList = () => {
   };
 
   // TOGGLE COMPLETE
-  const handleToggleComplete = async (card: SaleCardType) => {
+  const handleToggleComplete = async (card: DealCardType) => {
     const newStatus = card.status.includes("Complete")
       ? ["Active"]
       : ["Complete"];
@@ -158,7 +158,7 @@ export const SaleCardList = () => {
     return (
       <div className="loading">
         <div className="spinner"></div>
-        <p>Loading sales cards...</p>
+        <p>Loading deals cards...</p>
       </div>
     );
   }
@@ -178,7 +178,7 @@ export const SaleCardList = () => {
   }
 
   return (
-    <div className="sales-cards-container">
+    <div className="deals-cards-container">
       <div className="cards-header">
         <div>
           <h2>Sales Pipeline</h2>
@@ -200,7 +200,7 @@ export const SaleCardList = () => {
 
       {cards?.length === 0 ? (
         <div className="empty-state">
-          <p>No sales cards found</p>
+          <p>No deal cards found</p>
           <button
             className="btn-primary"
             onClick={() => {
@@ -214,7 +214,7 @@ export const SaleCardList = () => {
       ) : (
         <div className="cards-grid">
           {cards?.map((card) => (
-            <SaleCard
+            <DealCard
               key={card.id}
               card={card}
               onEdit={openEditModal}
@@ -225,7 +225,7 @@ export const SaleCardList = () => {
         </div>
       )}
 
-      <NewDealModal
+      <EditDeal
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={editingCard ? handleEditDeal : handleCreateDeal}

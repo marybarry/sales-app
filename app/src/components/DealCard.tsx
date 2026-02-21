@@ -1,4 +1,4 @@
-import { SaleCard as SaleCardType } from "../../types";
+import { DealCard as DealCardType } from "../types";
 
 /**
  * todo:
@@ -6,26 +6,22 @@ import { SaleCard as SaleCardType } from "../../types";
  * - use mui material
  * - colours of tags
  * - completed deal styling
- * - tests from front and back
- * - check validation and error handling
- * - pagination, sorting, search
  * - readmes
- * - edge cases?
  *
  */
-interface SaleCardProps {
-  card: SaleCardType;
-  onEdit: (card: SaleCardType) => void;
-  onDelete: (card: SaleCardType) => void; // or just pass id?
-  onToggleComplete: (card: SaleCardType) => void;
+interface DealCardProps {
+  card: DealCardType;
+  onEdit: (card: DealCardType) => void;
+  onDelete: (card: DealCardType) => void; // or just pass id?
+  onToggleComplete: (card: DealCardType) => void;
 }
 
-export const SaleCard = ({
+export const DealCard = ({
   card,
   onEdit,
   onDelete,
   onToggleComplete,
-}: SaleCardProps) => {
+}: DealCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB", {
@@ -40,7 +36,7 @@ export const SaleCard = ({
   };
 
   return (
-    <div className="sale-card">
+    <div className="deal-card">
       <div className="card-header">
         <h3 className="name">{card.name}</h3>
 

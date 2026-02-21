@@ -1,19 +1,19 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Priority, SaleCard as SaleCardType, Status } from "../types";
+import { DealCard as DealCardType, Priority, Status } from "../types";
 
-interface NewDealModalProps {
+interface EditDealProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (card: Omit<SaleCardType, "id">) => void;
-  initialData?: SaleCardType | null;
+  onSubmit: (card: Omit<DealCardType, "id">) => void;
+  initialData?: DealCardType | null;
 }
 
-export const NewDealModal = ({
+export const EditDeal = ({
   isOpen,
   onClose,
   onSubmit,
   initialData,
-}: NewDealModalProps) => {
+}: EditDealProps) => {
   const [formData, setFormData] = useState({
     name: "",
     customerName: "",
@@ -95,7 +95,7 @@ export const NewDealModal = ({
       return;
     }
 
-    const card: Omit<SaleCardType, "id"> = {
+    const card: Omit<DealCardType, "id"> = {
       name: formData.name.trim(),
       customerName: formData.customerName.trim(),
       email: formData.email.trim(),
