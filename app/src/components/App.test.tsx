@@ -119,20 +119,22 @@ describe("DealCardList", () => {
       render(<DealCardList />);
       await waitFor(() => screen.getByText("Acme Corp"));
 
-      await userEvent.click(screen.getByText(/\new deal/i));
+      await userEvent.click(screen.getByText("New Deal"));
       // Fill in required fields
       await userEvent.type(screen.getByLabelText("Name *"), "New Co");
       await userEvent.type(screen.getByLabelText(/customer name \*/i), "Alice");
-      await userEvent.type(
-        screen.getByLabelText(/contact email \*/i),
-        "alice@new.com"
+      await userEvent.type(screen.getByLabelText(/email/i), "alice@new.com");
+
+      await userEvent.click(
+        screen.getByRole("combobox", { name: /priority/i })
       );
-      await userEvent.selectOptions(
-        screen.getByLabelText(/priority \*/i),
-        "High"
+
+      await userEvent.click(
+        await screen.findByRole("option", { name: "High" })
       );
+
       // Add an MPAN
-      await userEvent.click(screen.getByText(/\+ add mpan/i));
+      await userEvent.click(screen.getByRole("button", { name: /add mpan/i }));
       const mpanInput = screen.getByPlaceholderText("Enter MPAN");
       await userEvent.type(mpanInput, "1234567890");
 

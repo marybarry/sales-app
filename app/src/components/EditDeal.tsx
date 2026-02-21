@@ -1,3 +1,28 @@
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { FormEvent, useEffect, useState } from "react";
 import { DealCard as DealCardType, Priority, Status } from "../types";
 
@@ -7,6 +32,15 @@ interface EditDealProps {
   onSubmit: (card: Omit<DealCardType, "id">) => void;
   initialData?: DealCardType | null;
 }
+
+const statusOptions: Status[] = [
+  "New Lead",
+  "Awaiting Pricing",
+  "Awaiting KYC",
+  "Signed",
+  "Active",
+  "Complete",
+];
 
 export const EditDeal = ({
   isOpen,
@@ -27,16 +61,6 @@ export const EditDeal = ({
 
   const [error, setError] = useState("");
 
-  const statusOptions: Status[] = [
-    "New Lead",
-    "Awaiting Pricing",
-    "Awaiting KYC",
-    "Signed",
-    "Active",
-    "Complete",
-  ];
-
-  // Populate form when editing OR reset when creating new
   useEffect(() => {
     if (!isOpen) return;
 
@@ -63,39 +87,24 @@ export const EditDeal = ({
         contractEndDate: "",
       });
     }
+
+    setError("");
   }, [initialData, isOpen]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validation
-    if (!formData.name.trim()) {
-      setError("Name is required");
-      return;
-    }
+    if (!formData.name.trim()) return setError("Name is required");
+    if (!formData.customerName.trim())
+      return setError("Customer name is required");
+    if (!formData.email.trim()) return setError("Contact email is required");
+    if (formData.mpans.length === 0 || formData.mpans.some((m) => !m.trim()))
+      return setError("Please enter at least one valid MPAN");
+    if (formData.status.length === 0)
+      return setError("Please select at least one status");
 
-    if (!formData.customerName.trim()) {
-      setError("Customer name is required");
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setError("Contact email is required");
-      return;
-    }
-
-    if (formData.mpans.length === 0 || formData.mpans.some((m) => !m.trim())) {
-      setError("Please enter at least one valid MPAN");
-      return;
-    }
-
-    if (formData.status.length === 0) {
-      setError("Please select at least one status");
-      return;
-    }
-
-    const card: Omit<DealCardType, "id"> = {
+    onSubmit({
       name: formData.name.trim(),
       customerName: formData.customerName.trim(),
       email: formData.email.trim(),
@@ -105,9 +114,8 @@ export const EditDeal = ({
       priority: formData.priority,
       contractStartDate: formData.contractStartDate,
       contractEndDate: formData.contractEndDate,
-    };
+    });
 
-    onSubmit(card);
     onClose();
   };
 
@@ -120,183 +128,218 @@ export const EditDeal = ({
     }));
   };
 
-  if (!isOpen) return null;
+  const addMpan = () =>
+    setFormData((prev) => ({ ...prev, mpans: [...prev.mpans, ""] }));
+
+  const updateMpan = (index: number, value: string) => {
+    const updated = [...formData.mpans];
+    updated[index] = value;
+    setFormData((prev) => ({ ...prev, mpans: updated }));
+  };
+
+  const removeMpan = (index: number) =>
+    setFormData((prev) => ({
+      ...prev,
+      mpans: prev.mpans.filter((_, i) => i !== index),
+    }));
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{initialData ? "Edit Deal" : "New Deal"}</h2>
-          <button className="close-btn" onClick={onClose}>
-            ×
-          </button>
-        </div>
+    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h6" fontWeight={600}>
+            {initialData ? "Edit Deal" : "New Deal"}
+          </Typography>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
 
-        <form onSubmit={handleSubmit}>
-          {/* Name */}
-          <div className="form-group">
-            <label htmlFor="name">Name *</label>
-            <input
-              id="name"
-              type="text"
+      <Divider />
+
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <Stack gap={2.5}>
+            {/* Name */}
+            <TextField
+              label="Name"
+              required
+              fullWidth
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder="Enter name"
+              size="small"
             />
-          </div>
 
-          {/* Customer Name */}
-          <div className="form-group">
-            <label htmlFor="customerName">Customer Name *</label>
-            <input
-              id="customerName"
-              type="text"
+            {/* Customer Name */}
+            <TextField
+              label="Customer Name"
+              required
+              fullWidth
               value={formData.customerName}
               onChange={(e) =>
                 setFormData({ ...formData, customerName: e.target.value })
               }
               placeholder="Enter customer name"
+              size="small"
             />
-          </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label htmlFor="email">Contact Email *</label>
-            <input
-              id="email"
+            {/* Email */}
+            <TextField
+              label="Contact Email"
+              required
+              fullWidth
               type="email"
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
               placeholder="contact@example.com"
+              size="small"
             />
-          </div>
 
-          {/* MPANs */}
-          <div className="form-group">
-            <label>MPANs *</label>
-
-            {formData.mpans.map((mpan, index) => (
-              <div key={index} className="mpan-row">
-                <input
-                  type="text"
-                  value={mpan}
-                  onChange={(e) => {
-                    const updated = [...formData.mpans];
-                    updated[index] = e.target.value;
-                    setFormData({ ...formData, mpans: updated });
-                  }}
-                  placeholder="Enter MPAN"
-                />
-
-                <button
+            {/* MPANs */}
+            <Box>
+              <FormLabel
+                required
+                sx={{ display: "block", mb: 1, fontSize: 14 }}
+              >
+                MPANs
+              </FormLabel>
+              <Stack gap={1}>
+                {formData.mpans.map((mpan, index) => (
+                  <Stack
+                    key={index}
+                    direction="row"
+                    gap={1}
+                    alignItems="center"
+                  >
+                    <TextField
+                      fullWidth
+                      size="small"
+                      value={mpan}
+                      onChange={(e) => updateMpan(index, e.target.value)}
+                      placeholder="Enter MPAN"
+                    />
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => removeMpan(index)}
+                    >
+                      <RemoveCircleOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                ))}
+                <Button
                   type="button"
-                  className="remove-mpan-btn"
-                  onClick={() => {
-                    const updated = formData.mpans.filter(
-                      (_, i) => i !== index
-                    );
-                    setFormData({ ...formData, mpans: updated });
-                  }}
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={addMpan}
+                  sx={{ alignSelf: "flex-start" }}
                 >
-                  ✕
-                </button>
-              </div>
-            ))}
+                  Add MPAN
+                </Button>
+              </Stack>
+            </Box>
 
-            <button
-              type="button"
-              className="add-mpan-btn"
-              onClick={() =>
-                setFormData({ ...formData, mpans: [...formData.mpans, ""] })
-              }
-            >
-              + Add MPAN
-            </button>
-          </div>
-
-          {/* Status */}
-          <div className="form-group">
-            <label>Status *</label>
-            <div className="checkbox-group">
-              {statusOptions.map((status) => (
-                <label key={status} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.status.includes(status)}
-                    onChange={() => handleStatusToggle(status)}
+            {/* Status */}
+            <FormControl component="fieldset">
+              <FormLabel required sx={{ fontSize: 14, mb: 0.5 }}>
+                Status
+              </FormLabel>
+              <FormGroup row>
+                {statusOptions.map((status) => (
+                  <FormControlLabel
+                    key={status}
+                    label={status}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={formData.status.includes(status)}
+                        onChange={() => handleStatusToggle(status)}
+                      />
+                    }
                   />
-                  <span>{status}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+                ))}
+              </FormGroup>
+            </FormControl>
 
-          {/* Priority */}
-          <div className="form-group">
-            <label htmlFor="priority">Priority *</label>
-            <select
-              id="priority"
-              value={formData.priority}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  priority: e.target.value as Priority,
-                })
-              }
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
+            {/* Priority */}
+            <FormControl fullWidth size="small">
+              <InputLabel id="priority-label" required>
+                Priority
+              </InputLabel>
 
-          {/* Contract Dates */}
-          <div className="form-group">
-            <label htmlFor="contractStartDate">Contract Start Date</label>
-            <input
-              id="contractStartDate"
-              type="date"
-              value={formData.contractStartDate}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contractStartDate: e.target.value,
-                })
-              }
-            />
-          </div>
+              <Select
+                labelId="priority-label"
+                id="priority"
+                value={formData.priority}
+                label="Priority"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    priority: e.target.value as Priority,
+                  })
+                }
+              >
+                <MenuItem value="Low">Low</MenuItem>
+                <MenuItem value="Medium">Medium</MenuItem>
+                <MenuItem value="High">High</MenuItem>
+              </Select>
+            </FormControl>
 
-          <div className="form-group">
-            <label htmlFor="contractEndDate">Contract End Date</label>
-            <input
-              id="contractEndDate"
-              type="date"
-              value={formData.contractEndDate}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  contractEndDate: e.target.value,
-                })
-              }
-            />
-          </div>
+            {/* Contract Dates */}
+            <Stack direction="row" gap={2}>
+              <TextField
+                label="Contract Start Date"
+                type="date"
+                fullWidth
+                size="small"
+                value={formData.contractStartDate}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    contractStartDate: e.target.value,
+                  })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="Contract End Date"
+                type="date"
+                fullWidth
+                size="small"
+                value={formData.contractEndDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, contractEndDate: e.target.value })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
 
-          {error && <div className="error">{error}</div>}
+            {error && <Alert severity="error">{error}</Alert>}
+          </Stack>
+        </DialogContent>
 
-          <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn-primary">
-              {initialData ? "Save Changes" : "Create Deal"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <Divider />
+
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button variant="outlined" color="inherit" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained">
+            {initialData ? "Save Changes" : "Create Deal"}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
