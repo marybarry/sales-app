@@ -1,10 +1,9 @@
-import { SaleCard as SaleCardType } from "../types";
+import { SaleCard as SaleCardType } from "../../types";
 
 /**
  * todo:
  * - theming
  * - use mui material
- * - show contract start/end in list
  * - colours of tags
  * - completed deal styling
  * - tests from front and back
@@ -71,6 +70,7 @@ export const SaleCard = ({
         className="delete-btn"
         onClick={() => onDelete(card)}
         title="Delete deal"
+        name="delete"
       >
         🗑️
       </button>

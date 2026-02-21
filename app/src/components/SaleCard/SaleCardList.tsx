@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { apiFetch } from "../api";
-import { SaleCard as SaleCardType } from "../types";
-import { ConfirmDeleteModal } from "./DeleteModal";
-import { NewDealModal } from "./NewDeal";
+import { apiFetch } from "../../api";
+import { SaleCard as SaleCardType } from "../../types";
+import { ConfirmDeleteModal } from "../DeleteModal";
+import { NewDealModal } from "../NewDeal";
 import { SaleCard } from "./SaleCard";
 
 export const SaleCardList = () => {
@@ -183,7 +183,8 @@ export const SaleCardList = () => {
         <div>
           <h2>Sales Pipeline</h2>
           <p className="card-count">
-            {cards.length} active deal{cards.length !== 1 ? "s" : ""}
+            {cards?.length ?? 0} active deal
+            {cards?.length !== 1 ? "s" : ""}
           </p>
         </div>
         <button
@@ -197,7 +198,7 @@ export const SaleCardList = () => {
         </button>
       </div>
 
-      {cards.length === 0 ? (
+      {cards?.length === 0 ? (
         <div className="empty-state">
           <p>No sales cards found</p>
           <button
@@ -212,7 +213,7 @@ export const SaleCardList = () => {
         </div>
       ) : (
         <div className="cards-grid">
-          {cards.map((card) => (
+          {cards?.map((card) => (
             <SaleCard
               key={card.id}
               card={card}

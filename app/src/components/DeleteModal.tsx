@@ -26,7 +26,11 @@ export const ConfirmDeleteModal = ({
           <button className="btn-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn-danger" onClick={onConfirm}>
+          <button
+            name="confirm-delete"
+            className="btn-danger"
+            onClick={onConfirm}
+          >
             Delete
           </button>
         </div>

@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import { SaleCardList } from "./SaleCardList";
+import { SaleCardList } from "./SaleCard/SaleCardList";
 
 export const Dashboard = () => {
   const { user, logout } = useAuth();
