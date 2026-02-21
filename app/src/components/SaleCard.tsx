@@ -9,10 +9,9 @@ import { SaleCard as SaleCardType } from "../types";
  * - completed deal styling
  * - tests from front and back
  * - check validation and error handling
- * - the whole backend
  * - pagination, sorting, search
  * - readmes
- * - edge cases
+ * - edge cases?
  *
  */
 interface SaleCardProps {

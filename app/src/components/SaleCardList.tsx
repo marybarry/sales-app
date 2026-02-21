@@ -1,88 +1,93 @@
 import { useEffect, useState } from "react";
+import { apiFetch } from "../api";
 import { SaleCard as SaleCardType } from "../types";
 import { ConfirmDeleteModal } from "./DeleteModal";
 import { NewDealModal } from "./NewDeal";
 import { SaleCard } from "./SaleCard";
 
-// Mock data - replace this with API call later
-const mockSaleCards: SaleCardType[] = [
-  {
-    id: "1",
-    name: "Acme Corp",
-    customerName: "John",
-    email: "john@acme.com",
-    mpans: ["234"],
-    status: ["New Lead", "Awaiting Pricing"],
-    createdDate: "2024-02-15",
-    priority: "High",
-    contractStartDate: "",
-    contractEndDate: "",
-  },
-  {
-    id: "2",
-    name: "Tech Solutions Ltd",
-    customerName: "Sarah",
-    email: "sarah@techsolutions.com",
-    mpans: ["12345", "5432"],
-    status: ["Awaiting KYC"],
-    createdDate: "2024-02-10",
-    priority: "Medium",
-    contractStartDate: "",
-    contractEndDate: "",
-  },
-  {
-    id: "3",
-    name: "Green Energy Co",
-    customerName: "Mike",
-    email: "mike@greenenergy.com",
-    mpans: ["6789", "09876", "1234"],
-    status: ["Signed"],
-    createdDate: "2024-02-01",
-    priority: "Low",
-    contractStartDate: "",
-    contractEndDate: "",
-  },
-];
-
 export const SaleCardList = () => {
   const [cards, setCards] = useState<SaleCardType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<SaleCardType | null>(null);
 
+  const [deleteTarget, setDeleteTarget] = useState<SaleCardType | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // FETCH
   useEffect(() => {
     const fetchCards = async () => {
       setLoading(true);
+      setError(null);
+      try {
+        const res = await apiFetch("/deals");
+        const data = await res.json();
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCards(mockSaleCards);
+        if (!res.ok || !data.success) {
+          setError(data.error ?? "Failed to load deals");
+          return;
+        }
 
-      setLoading(false);
+        setCards(data.deals);
+      } catch (err) {
+        setError("Network error — could not load deals");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchCards();
   }, []);
 
   // CREATE
-  const handleCreateDeal = (newCard: Omit<SaleCardType, "id">) => {
-    const id = Date.now().toString();
-    const cardWithId: SaleCardType = { ...newCard, id };
+  const handleCreateDeal = async (newCard: Omit<SaleCardType, "id">) => {
+    try {
+      const res = await apiFetch("/deals", {
+        method: "POST",
+        body: JSON.stringify(newCard),
+      });
 
-    setCards((prev) => [cardWithId, ...prev]);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        console.error("Failed to create deal:", data.error);
+        return;
+      }
+
+      setCards((prev) => [data.deal, ...prev]);
+    } catch (err) {
+      console.error("Network error creating deal:", err);
+    }
   };
 
   // EDIT
-  const handleEditDeal = (updated: Omit<SaleCardType, "id">) => {
+  const handleEditDeal = async (updated: Omit<SaleCardType, "id">) => {
     if (!editingCard) return;
 
-    const updatedCard: SaleCardType = { ...updated, id: editingCard.id };
+    try {
+      const res = await apiFetch(`/deals/${editingCard.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(updated),
+      });
 
-    setCards((prev) =>
-      prev.map((c) => (c.id === editingCard.id ? updatedCard : c))
-    );
+      const data = await res.json();
 
-    setEditingCard(null);
+      if (!res.ok || !data.success) {
+        console.error("Failed to update deal:", data.error);
+        return;
+      }
+
+      setCards((prev) =>
+        prev.map((c) => (c.id === editingCard.id ? data.deal : c))
+      );
+
+      setEditingCard(null);
+    } catch (err) {
+      console.error("Network error updating deal:", err);
+    }
   };
 
   const openEditModal = (card: SaleCardType) => {
@@ -96,36 +101,57 @@ export const SaleCardList = () => {
   };
 
   // DELETE
-
-  const [deleteTarget, setDeleteTarget] = useState<SaleCardType | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
   const openDeleteModal = (card: SaleCardType) => {
     setDeleteTarget(card);
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
 
-    setCards((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+    try {
+      const res = await apiFetch(`/deals/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
 
-    setDeleteTarget(null);
-    setIsDeleteModalOpen(false);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        console.error("Failed to delete deal:", data.error);
+        return;
+      }
+
+      setCards((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+      setDeleteTarget(null);
+      setIsDeleteModalOpen(false);
+    } catch (err) {
+      console.error("Network error deleting deal:", err);
+    }
   };
 
   // TOGGLE COMPLETE
-  const handleToggleComplete = (card: SaleCardType) => {
-    setCards((prev) =>
-      prev.map((c) =>
-        c.id === card.id
-          ? {
-              ...c,
-              status: c.status.includes("Complete") ? ["Active"] : ["Complete"],
-            }
-          : c
-      )
-    );
+  const handleToggleComplete = async (card: SaleCardType) => {
+    const newStatus = card.status.includes("Complete")
+      ? ["Active"]
+      : ["Complete"];
+
+    try {
+      const res = await apiFetch(`/deals/${card.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ ...card, status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        console.error("Failed to update deal status:", data.error);
+        return;
+      }
+
+      setCards((prev) => prev.map((c) => (c.id === card.id ? data.deal : c)));
+    } catch (err) {
+      console.error("Network error toggling complete:", err);
+    }
   };
 
   if (loading) {
@@ -133,6 +159,20 @@ export const SaleCardList = () => {
       <div className="loading">
         <div className="spinner"></div>
         <p>Loading sales cards...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-state">
+        <p>⚠️ {error}</p>
+        <button
+          className="btn-primary"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
       </div>
     );
   }

@@ -17,15 +17,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call to backend
-      // For now, just simulate a login
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch(
+        `https://g6xoo9pwuh.execute-api.eu-north-1.amazonaws.com/prod/login`,
+        {
+          method: "POST", // todo: import api url above from env instead
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        }
+      );
 
-      // Set the user (get this from backend)
-      setUser({
-        email: credentials.email,
-        name: "Demo User",
-      });
+      const data = await response.json();
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      setUser(data.user);
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }

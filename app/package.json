@@ -1,5 +1,5 @@
 {
-  "name": "@urbanchain/sales-app",
+  "name": "@urbanchain/sales-app-frontend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
