@@ -5,7 +5,8 @@
   "main": "dist/handler.js",
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",
@@ -13,9 +14,11 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.131",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.11.0",
     "@types/pg": "^8.10.9",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
   }
 }

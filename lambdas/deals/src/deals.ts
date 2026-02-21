@@ -220,7 +220,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   // CORS preflight
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: corsHeaders, body: "" };
+    return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
   // Auth
