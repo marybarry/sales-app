@@ -1,3 +1,13 @@
+import AddIcon from "@mui/icons-material/Add";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api";
 import { DealCard as DealCardType } from "../types";
@@ -49,14 +59,11 @@ export const DealCardList = () => {
         method: "POST",
         body: JSON.stringify(newCard),
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         console.error("Failed to create deal:", data.error);
         return;
       }
-
       setCards((prev) => [data.deal, ...prev]);
     } catch (err) {
       console.error("Network error creating deal:", err);
@@ -66,24 +73,19 @@ export const DealCardList = () => {
   // EDIT
   const handleEditDeal = async (updated: Omit<DealCardType, "id">) => {
     if (!editingCard) return;
-
     try {
       const res = await apiFetch(`/deals/${editingCard.id}`, {
         method: "PATCH",
         body: JSON.stringify(updated),
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         console.error("Failed to update deal:", data.error);
         return;
       }
-
       setCards((prev) =>
         prev.map((c) => (c.id === editingCard.id ? data.deal : c))
       );
-
       setEditingCard(null);
     } catch (err) {
       console.error("Network error updating deal:", err);
@@ -108,19 +110,15 @@ export const DealCardList = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
-
     try {
       const res = await apiFetch(`/deals/${deleteTarget.id}`, {
         method: "DELETE",
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         console.error("Failed to delete deal:", data.error);
         return;
       }
-
       setCards((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       setDeleteTarget(null);
       setIsDeleteModalOpen(false);
@@ -134,20 +132,16 @@ export const DealCardList = () => {
     const newStatus = card.status.includes("Complete")
       ? ["Active"]
       : ["Complete"];
-
     try {
       const res = await apiFetch(`/deals/${card.id}`, {
         method: "PATCH",
         body: JSON.stringify({ ...card, status: newStatus }),
       });
-
       const data = await res.json();
-
       if (!res.ok || !data.success) {
         console.error("Failed to update deal status:", data.error);
         return;
       }
-
       setCards((prev) => prev.map((c) => (c.id === card.id ? data.deal : c)));
     } catch (err) {
       console.error("Network error toggling complete:", err);
@@ -156,73 +150,103 @@ export const DealCardList = () => {
 
   if (loading) {
     return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Loading deals cards...</p>
-      </div>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={2}
+        py={8}
+      >
+        <CircularProgress />
+        <Typography color="text.secondary">Loading deals...</Typography>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <div className="error-state">
-        <p>⚠️ {error}</p>
-        <button
-          className="btn-primary"
-          onClick={() => window.location.reload()}
+      <Box p={3}>
+        <Alert
+          severity="error"
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          }
         >
-          Retry
-        </button>
-      </div>
+          {error}
+        </Alert>
+      </Box>
     );
   }
 
   return (
-    <div className="deals-cards-container">
-      <div className="cards-header">
-        <div>
-          <h2>Sales Pipeline</h2>
-          <p className="card-count">
-            {cards?.length ?? 0} active deal
-            {cards?.length !== 1 ? "s" : ""}
-          </p>
-        </div>
-        <button
-          className="btn-new-deal"
+    <Box p={3}>
+      {/* Header */}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Sales Pipeline
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {cards.length} active deal{cards.length !== 1 ? "s" : ""}
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
           onClick={() => {
             setEditingCard(null);
             setIsModalOpen(true);
           }}
         >
-          + New Deal
-        </button>
-      </div>
+          New Deal
+        </Button>
+      </Stack>
 
-      {cards?.length === 0 ? (
-        <div className="empty-state">
-          <p>No deal cards found</p>
-          <button
-            className="btn-primary"
+      {/* Empty state */}
+      {cards.length === 0 ? (
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          gap={2}
+          py={10}
+        >
+          <Typography color="text.secondary">No deals found</Typography>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
             onClick={() => {
               setEditingCard(null);
               setIsModalOpen(true);
             }}
           >
             Create Your First Deal
-          </button>
-        </div>
+          </Button>
+        </Box>
       ) : (
-        <div className="cards-grid">
-          {cards?.map((card) => (
-            <DealCard
-              key={card.id}
-              card={card}
-              onEdit={openEditModal}
-              onDelete={openDeleteModal}
-              onToggleComplete={handleToggleComplete}
-            />
+        <Grid container spacing={2}>
+          {cards.map((card) => (
+            <Grid container spacing={2} key={card.id}>
+              <DealCard
+                card={card}
+                onEdit={openEditModal}
+                onDelete={openDeleteModal}
+                onToggleComplete={handleToggleComplete}
+              />
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
 
       <EditDeal
@@ -238,6 +262,6 @@ export const DealCardList = () => {
         onConfirm={handleConfirmDelete}
         itemName={deleteTarget?.name}
       />
-    </div>
+    </Box>
   );
 };

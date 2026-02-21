@@ -80,7 +80,7 @@ describe("DealCardList", () => {
       );
       render(<DealCardList />);
       await waitFor(() => {
-        expect(screen.getByText(/no deal cards found/i)).toBeInTheDocument();
+        expect(screen.getByText(/no deals found/i)).toBeInTheDocument();
       });
     });
   });
@@ -119,7 +119,7 @@ describe("DealCardList", () => {
       render(<DealCardList />);
       await waitFor(() => screen.getByText("Acme Corp"));
 
-      await userEvent.click(screen.getByText(/\+ new deal/i));
+      await userEvent.click(screen.getByText(/\new deal/i));
       // Fill in required fields
       await userEvent.type(screen.getByLabelText("Name *"), "New Co");
       await userEvent.type(screen.getByLabelText(/customer name \*/i), "Alice");
