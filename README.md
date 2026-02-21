@@ -34,7 +34,10 @@ The backend (AWS Lambda + API Gateway + PostgreSQL RDS) is already deployed and 
 **You do NOT need to run the backend locally.**
 The frontend is preconfigured to communicate with the live API endpoints.
 
-I have included the deploy.sh scripts anyway for review, but omitted sensitive information.
+I’ve included the deploy.sh scripts for review (with sensitive information removed). They aren’t required to run the project, but they show how the Lambdas were packaged and deployed.
+
+For convenience, this project uses a single production backend.
+In a real‑world setup, I would introduce a proper environment structure (local, dev, staging, prod) and allow developers to run the backend locally as well—for example, using Docker Compose to spin up Postgres and local Lambda emulation. This would make development safer, more flexible, and closer to production workflows.
 
 ## Features
 
