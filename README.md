@@ -182,16 +182,29 @@ I set up the backend infrastructure using a combination of the AWS Console and t
 
 ## What I would do in future / given more time
 
-- Extract data-fetching logic from components into a dedicated hook (e.g., `useDeals`) and a service layer. This would improve separation of concerns, reduce component complexity, and make the codebase more scalable and testable
-- Add the ability to create a new user at login (just use test user for now)
-- Add pagination, search and filtering for deals (inc. pagination at the API level too)
-- Tighter validation / edge case coverage, e.g. max length on inputs, do not allow contract_end_date to be before contract_start_date, disable submit button when creating a deal to avoid double-clicking
-- Create a theme and use MUI theme to implement it, reducing the amount of CSS needed
-- Optimistic UI updates: update the UI before the API response to make the experience feel smoother
-- Accessibility improvements, e.g. aria labels, keyboard navigation and colour checks
-- Pre-commit hooks: run linting, type‑checking, and tests automatically
-- Add CI/CD pipeline in GitHub and replace manual deploy scripts with automated workflows
-- Integrate CloudWatch structured logs
-- Caching: use CloudFront or Redis (ElastiCache) for frequently accessed data
-- Local development environment using Docker Compose - allow devs to spin up Postgres + local Lambda
-- Host the frontend (e.g., on AWS S3 + CloudFront) so the entire application is deployed end‑to‑end and accessible via a single public URL
+### Frontend Architecture & Code Quality
+
+- Extract data‑fetching logic from components into a dedicated hook (e.g., useDeals) and a service layer to improve separation of concerns and testability
+- Create a shared MUI theme to reduce duplicated styling and centralise design decisions
+- Add optimistic UI updates so interactions feel smoother
+- Improve accessibility (ARIA labels, keyboard navigation, colour contrast)
+- Add pre‑commit hooks to run linting, type‑checking, and tests automatically
+
+### Features & UX Enhancements
+
+- Add the ability to create a new user at login (currently using a test user)
+- Add pagination, search, and filtering for deals (including API‑level pagination)
+- Add tighter validation and edge‑case handling (e.g., max input lengths, preventing contract_end_date < contract_start_date, disabling submit during requests)
+
+### Environment & Configuration
+
+- Move the API base URLs into environment variables instead of hard‑coding them
+- Introduce multiple environments (local, dev, staging, prod) with separate configuration and API endpoints
+
+### Infrastructure & DevOps
+
+- Add a CI/CD pipeline in GitHub to replace manual deploy scripts
+- Integrate structured logging with CloudWatch
+- Add caching (CloudFront or Redis/ElastiCache) for frequently accessed data
+- Create a local development environment using Docker Compose (Postgres + local Lambda)
+- Host the frontend (e.g., S3 + CloudFront) so the entire application is deployed end‑to‑end and accessible via a single public URL
