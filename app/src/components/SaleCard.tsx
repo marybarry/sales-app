@@ -91,6 +91,16 @@ export const SaleCard = ({
         </div>
 
         <div className="card-info">
+          <span className="label">Contract start:</span>
+          <span className="value">{formatDate(card.contractStartDate)}</span>
+        </div>
+
+        <div className="card-info">
+          <span className="label">Contract end:</span>
+          <span className="value">{formatDate(card.contractEndDate)}</span>
+        </div>
+
+        <div className="card-info">
           <span className="label">Created:</span>
           <span className="value">{formatDate(card.createdDate)}</span>
         </div>
