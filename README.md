@@ -175,6 +175,7 @@ I used Claude.ai chat and ChatGPT to:
 - Generate template deploy scripts
 - Refactor to replace native components with Material UI components
 - Generate a template for this README that I could fill in myself
+- Generate a SQL script, given the desired schema, to initialise the database
 
 I designed the overall architecture and business logic, using my preferred tech stack.
 I set up the backend infrastructure using a combination of the AWS Console and the AWS CLI.
