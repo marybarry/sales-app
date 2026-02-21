@@ -84,7 +84,7 @@ export const SaleCard = ({
         </div>
 
         <div className="card-info">
-          <span className="label">Sites:</span>
+          <span className="label">MPANs:</span>
           <span className="value">
             {card.mpans.length} site{card.mpans.length !== 1 ? "s" : ""}
           </span>
