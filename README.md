@@ -192,6 +192,9 @@ I used Claude.ai chat and ChatGPT to:
 I designed the overall architecture and business logic, using my preferred tech stack.
 I set up the backend infrastructure using a combination of the AWS Console and the AWS CLI.
 
+AI acted as a coding assistant - it helped me develop faster/more effectively and spot potential issues.
+It mirrors how I use AI in an engineering environment - as a tool to enhance my productivity and reduce repetitive work.
+
 ## What I would do in future / given more time
 
 ### Frontend Architecture & Code Quality
